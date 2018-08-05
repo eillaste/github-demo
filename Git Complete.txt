@@ -1,0 +1,101 @@
+----------- Key Concepts
+
+*Repository contains files, history, config managed by Git
+*Three states of Git:
+    *Working directory
+    *Staging Area (git index) - pre commit holding area
+    *Commit - Git Repository (.git folder/history)
+    + *Remote repository (github)
+    
+----------- Installation
+
+Windows
+
+git-for-windows.github.io  --> download --> 64-bit.exe
+
+$ git version
+
+Mac OS
+
+$ git version
+automatic prompt to install git appears
+
+--------- Git Quick Start
+
+github.com -> sign in -> + new repository (example name: github-demo) -> initialize with readme -> create repository
+use terminal or gitbash
+$ mkdir project -> cd project
+
+configuring local system
+
+$ git config --global user.name "Erik Illaste"
+$ git config --global user.email "erik.illaste@gmail.com"
+$ git config --global --list
+
+in https://github.com/eillaste/github-demo clone HTTPS url (https://github.com/eillaste/github-demo.git)
+$ git clone https://github.com/eillaste/github-demo.git
+
+$ cd github-demo
+$ dir (ls in mac) - lists contents of directory
+$ git status
+
+tells us it's on master branch
+
+also tells us your branch is up-to-date with 'origin/master'.
+which refers to the master branch of the github version of the repository
+the git clone command automatically set up a relationship back to the repo on github
+and named  that reference origin
+
+also tells working directory is clean
+
+we use the "git status" command to see if there are any changes to the working directory, the stsaging area,
+our local repo and our remote repo.
+
+echo "Test Git Quick Start demo" >> start.text
+creates new txt file with text contents specified "..."
+
+$ git status 
+says we have untracked file "start.txt" not added to git yet. start.txt is in working directory, 
+we haven't told git about it yet, so we use
+$ git add start.txt  [or git add .]
+$ git status
+now git tells us the file is in the staging area, waiting the commit
+$ git commit -m "Adding start text file"
+$ git status
+Tells us we are back to clean working directory
+and our master branch is ahead of 'origin/master' by 1 commit
+now the new file has been moved from the staging area to the local repository
+$ git push origin master
+[ origin refers to the GitHub copy of our repo][ master refers to our default and only branch in the repo ]
+may ask for github username and password
+
+
+--------- Setting up text editor
+https://notepad-plus-plus.org/download/v7.5.8.html download
+add notepad++ to environmental variables
+locate and copy folder location with notepad++ exe C:\Program Files (x86)\Notepad++
+right click on This PC--->properties--->advanced system settings-->advanced-->environmental variables
+Under system variables scroll down to Path variable-->edit-->new, paste notepad++ Path
+$ notepad++
+
+--------- Configuring Notepad++ with Git
+[from users home directory]
+$ notepad++ .bash_profile
+alias npp='notepad++.exe -multiInst -nosession'
+save the file
+
+--- set up notepad++ as Git's default editor
+in gitbash
+$ cat ~/.gitconfig
+just shows config data
+$ git config --global core.editor "notepad++.exe -multiInst -nosession"
+check result
+$ git config --global --list
+shows that core editor is now notepad++.exe
+$ git config --global -e 
+git will open the core editor to edit the .gitconfig file
+
+--- In Visual Studio Code
+just $ git init repo and Source Control tab will pretty much take care of the result
+
+---------
