@@ -66,7 +66,7 @@ Tells us we are back to clean working directory
 and our master branch is ahead of 'origin/master' by 1 commit
 now the new file has been moved from the staging area to the local repository
 $ git push origin master
-[ origin refers to the GitHub copy of our repo][ master refers to our default and only branch in the repo ]
+[ origin refers to the GitHub copy of our repo][ master refers to our default and only branch in that repo ]
 may ask for github username and password
 
 
@@ -98,4 +98,211 @@ git will open the core editor to edit the .gitconfig file
 --- In Visual Studio Code
 just $ git init repo and Source Control tab will pretty much take care of the result
 
----------
+--------- Git Basics Overview
+    Strating a project
+    * Fresh (no source)
+    * Existing source locally
+    * GitHub project (Fork and clone)
+    * Basic Workflow (add, commit, push & pull)
+    * Working with Files (rename, move & delete)
+    * History and Aliases
+    * Ignoring unwanted files
+
+---- Fresh project
+    $ git init fresh-project
+    $ notepad hipster.txt
+    [save the file]
+    [$ git status]
+    $ git add hipster.txt (or .)
+    $ git commit -m "blablabla"
+
+---- Existing project
+    http://www.initializr.com/
+    download, unzip, $ cd folder
+    $ git init
+    $ git add .
+    $ git commit -m "blablabla"
+
+    $ rd /s /q ".git" 
+    removes git folder from project folder. can be any folder in "" instead of .git
+
+---- Join an existing project on GitHub
+    Go to https://github.com/scm-ninja/starter-web
+    Fork repo
+    so this was just created: https://github.com/eillaste/starter-web
+    under "clone or download" ---> https://github.com/eillaste/starter-web.git
+    $ cd projects
+    $ git clone https://github.com/eillaste/starter-web.git [make sure your username in path]
+    
+    $ cd starter-web
+    [note that .git folder already present]
+    $ git status [origin refers to remote repo, /master refers to master branch on that repo]
+
+---- Adding new files to a Git repository
+    notepad hipster.txt
+    write something
+    git status
+    git add hipster.txt
+    git status
+    git commit -m "my first commit"
+    git pull origin master [this will update our repo with any changes that may have happened on the remote repo down to our local repo just to make sure we are up to date before we make pushes up to the remote repo. It's a best practice to always do a pull before doing a push!]
+    says: already up to date [probably not up to date when working with a team]
+    git push origin master [origin = remote repo, master = master branch of that repo]
+
+---- Tracked files
+    make some change to hipster.txt
+    git commit -am "more texts" [a for add changes to staging area and m for commits message, all in one command]
+    [this can only be done with tracked files i.e. any file that has already been commited to the git repo, git index or git staging area]
+    TO FIND OUT WHICH FILES ARE BEING Tracked type:
+    $ git ls-files
+
+    basically if: notepad new.txt
+    then git ls-files does not list [track] it yet
+    but after: git add new.txt
+    git ls-files will track it
+
+---- Editing files
+    update hipster.txt
+    whatever
+
+---- Recursive Add
+    cd starter-web
+    create folder structure level1/level2/level3/level5
+    and in each level create levelxfile.txt
+    cd ../../.. back to starter-web
+    git status ---> will show only level1/
+    git add .
+    git status ---> now shows 
+        new file:   level1/leve1file.txt
+        new file:   level1/level2/leve2file.txt
+        new file:   level1/level2/level3/leve3file.txt
+    git commit -m "multiple"
+
+---- Backing Out changes
+    cd starter-web
+    cd level1
+    notepad level1file.txt [contents: ohoho]---> add text [blabla], save
+    git status ---> shows modified file
+    git add leve1file.text
+    git status ---> shows modified & staged file
+--->git reset HEAD leve1file.text
+--->git checkout -- leve1file.text
+    git status ---> back to clean working directory and file is back to what it was before editing/as last committed [contents: ohoho]--->  [blabla] wasn't added
+
+---- Renaming and moving files
+    cd starter-web
+    cd level1/level2/level3
+    dir ---> lists leve3file.text
+    git mv leve3file.text level3.txt
+    dir ---> lists level3.txt
+    git status [git has staged the fact that rename has taken place but has not committed this, we could back out from the rename]
+    git commit -m "renaming level3 file"
+    cd..
+    rename leve2file.text level2.txt
+    git status [git sees it as 2 operations, deleted old & added new file]
+    git add -A [adds the fact that we made the rename outside of git. -A will add changes + updates files that have been renamed, moved, deleted]
+    git status [git sees that we renamed the file]
+    git commit -m "renaming level 2 file"
+
+    git mv level2.txt 2.txt
+    git status [git has staged the rename]
+    git mv 2.txt level2.txt
+    git status [back to clean working directory]
+
+    git mv level2.txt level3 [move to level3]
+    dir [shows that level2 is now empty]
+    git status [git has staged that we have renamed/moved the file]
+    git commit -m "moved from level2 to level3"
+    git status [clear]
+    now just cut paste 2.txt from level3 back to leve3
+    git status [shows that we deleted or moved]
+--->git add -A 
+
+    rename any folder
+    git status [shows we deleted or moved]
+    git add -A
+    git status [all clear]
+
+---- Deleting Files
+    cd starter-web
+    notepad doomed.txt
+    del doomed.txt
+
+    git ls-files
+    cd level1
+    git rm leve1file.text [removes file]
+    git status
+    git commit -m "deletion"
+    git status [clean working directory]
+
+   - backing out a staged deletion
+
+    git ls-files
+    git rm hipster.txt [deletes file, but then we want to undo deletion]
+    git reset HEAD hipster.txt
+    git checkout -- hipster.txt
+
+    del hipster.txt
+    git add -A
+
+    delete folder1 and all nested folders and files
+    git add -A
+    git commit -m "deletion"
+
+---- Git History
+    git log help
+
+    git status
+    
+--->git log
+    q [to get out of there]
+
+    git log --abbrev-commit [shortened version]
+    q [to get out of there]
+
+    git log --oneline --graph --decorate [even shorter version]
+    q [to get out of there]
+
+    git log 418795b...727727c [specified log, only shows those logs specified]
+
+    git log --since="3 days ago"
+
+    SPECIFIC FILE GIT log
+    git log -- hipster.txt
+
+    file that we have renamed
+    git log --follow -- level1/level2/leve2.txt
+
+    show info about specific commit
+    git show 53374c87df7fb2128bd981dc592c0d77107abebe
+
+---- Git Alias
+    cd starter-web
+    git log --all --graph --decorate --oneline [long typing.. we can fix that]
+
+    git hist [git says this doesnt exist, we'll create it]
+    git config --global alias.hist "log --all --graph --decorate --oneline" [leaving out git part of the command!]
+    git hist [magic happens]
+
+    [this stuff is stored in .gitconfig file somewhere, idk where lol]
+
+---- Ignoring Unwanted Files and folders
+    cd starter-web
+    notepad .gitignore
+    add into file: .DS_Store [or node_modules or whatever]
+    git add .gitignore
+    git commit -m "added gitignore"
+
+---- Cleanup and Back to Origin GitHub
+    cd starter-web
+    git status
+    [your branch is ahead of 'origin/master' by 14 commits]
+    [git pull origin master]
+    git push origin master
+
+
+
+
+
+
+
