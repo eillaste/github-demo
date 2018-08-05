@@ -297,6 +297,7 @@ just $ git init repo and Source Control tab will pretty much take care of the re
     cd starter-web
     git status
     [your branch is ahead of 'origin/master' by 14 commits]
+    [git commit -m "bla"]
     [git pull origin master]
     git push origin master
 
