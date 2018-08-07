@@ -302,9 +302,413 @@ just $ git init repo and Source Control tab will pretty much take care of the re
     [git pull origin master]
     git push origin master
 
+--------------- Visual Merge Diff Tool Installation Overview
+    * P4Merge for Windows
+    * Git configuration
+
+---- https://www.perforce.com/downloads/visual-merge-tool
+     in installation deselect all except merge Tool
+
+---- P4Merge Configure on Windows
+    find exe path, copy, right click this pc, properties, advanced, system variables, Path, add copied text, ok
+    $ p4merge
+
+---- Configuring P4Merge with Git
+    git config --global merge.tool p4merge
+    git config --global mergetool.p4merge.path "C:\Program Files\Perforce\p4merge.exe"
+    git config --global mergetool.prompt false
+
+    git config --global diff.tool p4merge
+    git config --global difftool.p4merge.path "C:\Program Files\Perforce\p4merge.exe"
+    git config --global difftool.prompt false
+
+    then list config: git config --global --list
+    open up gitconfig file in defalt editor: git config --global -e
 
 
+EXPRESS/FAST COMMIT
+git commit -am "Adding new section: Deployment"
+git push origin master
 
+---------- Comparisons
 
+---- Comparing Working Directory and Staging Area
+    git diff
 
+    if you have visual merge and diff tool configured and set up for git
+    then we can use git's difftool command to visually see our changes
+
+    git difftool
+
+---- Comparing Working Directory and Git Repository Last Commit
+    git diff HEAD
+    
+    same with difftool
+
+    git difftool HEAD
+
+---- Comparing between the Staging Area and the Git Repository Last Commit
+    git diff --staged HEAD
+
+    same with difftool
+
+    git difftool --staged HEAD
+
+---- Limiting Comparisons to one File or path
+    git diff -- README.md 
+    [shows only changes to readme.md]
+    git difftool -- README.md
+
+---- Comparing Between commits
+    git log --oneline
+    git diff fbab8cf HEAD
+    [shows changes between fbab8cf and the last commit [HEAD]]
+    [alternatively: git diff HEAD HEAD^] doesnt seem to work nvm
+
+    git diff 3692a28 0f0c962 [changes between two random commits]
+    git difftool 3692a28 0f0c962 [same with difftool]
+
+---- Comparing Between Local and Remote Master branch
+    git diff master origin/master
+    [master = local repo @ HEAD[latest]][origin/master = remote repo @ github]
+
+--- Comparison Section Cleanup and Push back to GitHub
+    git add .
+    git commit -m "changes made in this section"
+    git pull origin master
+    git push origin master
+
+------------ Branching and Merging
+    cd starter-web
+    git branch -a [lists branches remote and local, * by current active branch]
+    git branch mynewbranch [creates new branch]
+    git checkout mynewbranch [changes branch]
+    [git log --oneline --decorate]
+    git checkout master [back to master]
+    git branch -m mynewbranch newbranch [renames branch (mynewbranch-->newbranch)]
+    git branch -d newbranch [deletes branch][need to be on different branch before]
+
+---- Happy Path Fast Forward Merges
+    [creating new branch, changing something in it, merging it with master, deleting new branch]
+    cd starter-web
+    git checkout -b title-change [creates new branch and switches to it]
+    notepad simple.html --->change something in it and save
+    git commit -am "changed simple.html"
+    git log --oneline [shows change]
+    git diff master title-change [comparing differences in different branches]
+    git difftool master title-change [same visually in difftools]
+    git merge title-change
+    [git log --oneline --graph --decorate]
+    git branch -d title-change [we delete the branch dont need it no more]
+
+---- Happy Path Disable Fast Forward Merges
+    cd starter-web
+    git checkout -b add-copyright
+    notepad simple.html --->add text
+    git status
+    git commit -am "adding copyright" [-am = add and commit; -m = message]
+    notepad README.md
+    git commit -am "adding copyright to readme"
+    git log --oneline --graph --decorate
+    git checkout master
+    git merge add-copyright --no-ff
+    see https://ariya.io/2013/09/fast-forward-git-merge
+
+---- Automatic Merges
+    cd starter-web
+    git branch [master]
+    git checkout -b simple-changes
+    notepad humans.txt --> edit save
+    git commit -am "added contact info"
+    git checkout master
+    notepad README.md -->edit save
+    git commit -am "Adding instructions"
+    git log --oneline --graph --decorate --all
+    git merge simple-changes -m "Merging changes from simple-changes branch"
+    git branch -d simple-changes
+    [log again and see that the label simple-changes has been removed, but branch still intact]
+
+---- Conflict Merges and Resolution
+    cd starter-web [working directory of git repository]
+    git checkout -b realwork
+    notepad simple.html [edit save]
+    git commit -am "making changes to simple.html"
+    git checkout master
+    notepad simple.html [[shows original content]edit save]
+    git add simple.html
+    git commit -m "added text to simple.html"[these two steps are the same as: git commit -am "msg"]
+    git log --oneline --graph --decorate --all [git shows we have diverging changes on different branches]
+    git diff master realwork [shows comparison between the 2 branches]
+    git difftool master realwork [same visually]
+    git merge realwork [CONFLICT, automatic merge failed]
+    notepad simple.html [will now show differences in the file WOW]
+    git mergetool [opens up mergetool where you can solve conflicts by choosing one version]
+    git commit -m "Done resolving merge conflicts"
+    git status
+    notepad .gitignore [add *.orig and save]
+    git add .gitignore
+    git commit -m "updating ignore file to exclude merge temp files"
+    git branch
+    git branch -d realwork
+    git log --oneline --graph --decorate --all
+
+---- Section cleanup and Push back to GitHub
+    cd starter-web
+    git status
+    git pull origin master
+    git push origin master
+
+------------- Rebasing
+    [creating a feature branch, doing work on it, then switching to master branch
+    doing work on that, and rebasing changes on master branch to the feature branch]
+
+---- Simple Rebase Example
+    cd starter-web
+    git checkout -b myfeature
+    notepad humans.txt [edit save]
+    git commit -am "adding text to humans"
+    git checkout master [switching back to master branch]
+    notepad README.md [edit save]
+    git commit -am "adding text to readme"
+    git log --oneline --decorate --all --graph
+    [now we want to rebase master into the feature branch]
+    git checkout myfeature
+    git rebase master
+    git log --oneline --decorate --all --graph
+    notepad README.md [on myfeature branch currently]
+    git commit -am "adding another change to README.md"
+    git log --oneline --decorate --all --graph
+    git checkout master
+    git diff master myfeature
+    git merge myfeature
+    git log --oneline --decorate --all --graph
+    git branch -d myfeature
+
+---- Setup for rebasing conflict
+    cd starter-web
+    notepad simple.html [edit save]
+    git commit -am "mb before rebase conflicts"
+    git checkout -b bigtrouble
+    notepad simple.html [edit save]
+    git commit -am "fb adding some trouble to simple.html"
+    git checkout master
+    notepad simple.html [edit save conflicting stuff]
+    git commit -am "mb conflicting changes brewing" [mb=master branch fb=feature branch]
+    git log --oneline --graph --decorate --all
+
+-- Abort a Rebase
+    [continue from last section]
+    git checkout bigtrouble
+    git difftool master bigtrouble [b4merge=difftool/mergetool]
+    git rebase master [conflict]
+    git rebase --abort [backs up from rebase attempt, nothing changed]
+
+-- Rebase Conflict and Resolution
+    [continue from last section]
+    git log --oneline --graph --decorate --all [shows 2 diverged branches]
+    git rebase master [conflict]
+    git mergetool
+    git add simple.html
+    git rebase --continue
+    git log --oneline --graph --decorate --all [mb commit, fb commit]
+    notepad simple.html
+    git commit -am "adding changes after rebasing conflict"
+    git checkout master
+    git merge bigtrouble
+    git log --oneline --graph --decorate --all [mb fb pointing to the same commit, branching graph is very flat, however both branches still exist]
+
+-- Pull with Rebase GitHub [how to rebase incoming GitHub changes to local repository]
+    cd starter-web [on master branch]
+    git pull origin master
+    git push origin master
+    git status [clean]
+    notepad simple.html [edit, save]
+    git commit -am "local: updating simple.html copyright text"
+    go to github repo and manually update index.html, write "remote: minor change to index.html" to commit changes, and press commit changes.
+    git status [your branch is 1 commit ahead of remote [github] which is false]
+    git fetch origin master [updates references between remote and local repo, not same as pull]
+    git status [Your branch and 'origin/master' have diverged, and have 1 and 1 different commits each, respectively.]
+    
+    git pull --rebase origin master
+    [now we have rebased our changes on github on top of our master branch in local repo]
+    git status [Your branch is ahead of 'origin/master' by 1 commit.]
+
+-- section cleanup and push to GitHub
+    cd starter-web
+    git branch -d bigtrouble
+    git pull origin master
+    git push origin master
+
+---------- Stashing
+    cd starter-web
+    notepad simple.html [edit, save]
+    git stash [to go work on some other stuff]
+    git status [clean working directory, changes to simple.html invisible]
+    notepad README.md
+    git commit -am "changed readme"
+    git stash apply [getting back to simple.html]
+    notepad simple.html [changes are back]
+    git commit -am "done with simple.html updates"
+
+    git stash list
+    [shows: stash@{0}: WIP on master: c5a4801 local: updating simple.html copyright text]
+    git stash drop
+
+--- Stashing Untracked Files and Using Pop [stash works for only tracked files]
+    [git ls-files]
+    notepad humans.txt [edit, save]
+    notepad ANewFile.txt
+    git status [lists the two differently, newly created file not tracked]
+    [if u do git stash it will stash only humans.txt which is tracked]
+    git stash
+    git status [still shows ANewFile.txt]
+    git stash apply
+    git stash drop
+    git stash list
+    git stash -u [git stash will include untracked files]
+    git status [working directory is clean now]
+    git stash list
+    notepad README.md [edit, save]
+    git commit -am "quick fix after stash on readme file"
+    git status [clear]
+    git stash pop [does git stash apply + git stash drop]
+    git status
+    del ANewFile.txt
+    git status
+    git commit -am "update to humans file after stash pop"
+
+---- Managing Multiple Stashes
+    cd starter-web
+    git branch [master]
+    notepad simple.html [edit, save]
+    git stash save "simple changes"
+    notepad index.html [edit, save]
+    git stash save "index changes"
+    notepad README.md  [edit ,save]
+    git stash save "Readme changes"
+    git stash list
+
+    stash@{0}: On master: readme changes
+    stash@{1}: On master: index changes
+    stash@{2}: WIP on master: de151b0 update to humans file after stash pop
+
+    git stash show stash@{1}
+
+    index.html | 2 +-
+    1 file changed, 1 insertion(+), 1 deletion(-)
+
+    git status [clear]
+    git stash list
+    git stash apply stash@{1}
+    git status
+
+            modified:   index.html
+
+    git stash list
+    git stash drop stash@{1}
+    git stash list [one stash is gone]
+    git stash clear [empties list of stashes]
+    git stash list [no results]
+
+---- Stashing into a Branch
+    cd starter-web
+    git status [not clear]
+    git stash list [clear]
+    notepad simple.html [edit, save]
+    notepad humans.txt [edit, save]
+    git status [3 files modified]
+    git add index.html
+    git status [1:2]
+    notepad new.md
+    git status [1:2:1]
+    git stash -u [stashing modified + new files]
+    git status [clean]
+    git stash branch newchanges [creates new branch newchanges, we switch into that branch, our stash is applied, and that same stash is then dropped]
+    git stash list [empty]
+    git status [1:2:1]
+    del new.md
+    git add .
+    gits status [3]
+    git commit -m "changes after git stash-branch command"
+    git checkout master
+    git merge newchanges
+    git branch -d newchanges
+    git branch [master only]
+
+--- Section cleanup and push to GitHub
+    cd starter-web
+    git status
+    git pull origin master
+    git push origin master
+
+--------- Tagging
+    cd starter-web
+    git status [clear, master]
+    git log --oneline --decorate --graph --all
+    git tag myTag [creates tag]
+    git tag --list [lists existing tags]
+    git show myTag
+    git tag --delete myTag
+    git tag --list [empty]
+
+---- Annotated Tags
+    git tag -a v-1.0 [opens in editor, add msg [release 1.0] save]
+    git tag --list [v-1.0]
+    git log --oneline --graph --decorate --all
+    git show v-1.0
+
+---- Comparing Tags
+    git tag --list [v-1.0]
+    dir
+    notepad index.html
+    git commit -am "tweaking file for tagging example"
+    git log --oneline --decorate --graph --all
+    git tag -a v-1.1
+    git commit -am "Updating for tag 1.1"
+    git commit --amend [change file and save]
+    git tag v-1.2 -m "Release 1.2"
+    git tag --list
+            v-1.0
+            v-1.1
+            v-1.2
+    git log --oneline --decorate --graph --all
+    git diff v-1.0 v-1.2
+    git difftool v-1.0 v-1.2
+
+---- Tagging a Specific Commit
+    cd starter-web
+    git status [clear, master]
+    git log --oneline --decorate --graph --all
+    git tag -a v-0.9-beta f53706b [Beta releas 0.9, save]
+    git log --oneline --decorate --graph --all
+    git tag -a v-0.8-alpha f53706b
+    git log --oneline --decorate --graph --all
+
+---- Updating Tags
+    cd starter-web
+    git status [clear, master]
+    git log --oneline --decorate --graph --all
+    git tag -a v-0.8-alpha -f 29a297c
+    git log --oneline --decorate --graph --all
+    [tag moved to different commit (29a297c)]
+
+---- Using Tags with GitHub
+    cd starter-web
+    git status [clear, master]
+    git tag --list
+            v-0.8-alpha
+            v-0.9-beta
+            v-1.0
+            v-1.1
+            v-1.2
+    git log --oneline --decorate --graph --all
+    go to GitHub-->Releases tab-->Tags [none]
+    git push origin v-0.9-beta
+    now GitHub has our v-0.9-beta tag
+    git push origin v-1.1 [pushes tag + the commit to github(releases?)]
+    git push origin master --tags [will synchronise master branch and push up any tags that are missing]
+    
+    [if u accidentally push a tag that shouldnt be on github]
+    git tag --list
+    git push origin :v-0.8-alpha [deletes that tag on github, we still have it on local repo]
 
